@@ -6,24 +6,23 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // Allow your GitHub Pages site
+        origin: "*", // Replace with your GitHub Pages URL
         methods: ["GET", "POST"],
     },
 });
 
 io.on('connection', (socket) => {
-    console.log('A user connected');
+    console.log('A user connected:', socket.id);
 
-    // Listen for a message from the client
-    socket.on('message', (msg) => {
-        console.log('Message received: ', msg);
-
-        // Broadcast the message to all clients
-        io.emit('message', msg);
+    // Relay signaling messages
+    socket.on('signal', (data) => {
+        const { to, signal } = data;
+        io.to(to).emit('signal', { from: socket.id, signal });
     });
 
+    // Notify others of disconnection
     socket.on('disconnect', () => {
-        console.log('A user disconnected');
+        console.log('A user disconnected:', socket.id);
     });
 });
 
