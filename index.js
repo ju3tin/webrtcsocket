@@ -11,10 +11,6 @@ const io = new Server(server, {
     },
 });
 
-app.get('/api/data', (req, res) => {
-    res.json({ message: 'Hello, this is your GET API response!' });
-});
-
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
