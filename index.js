@@ -50,7 +50,33 @@ io.on('connection', (socket) => {
           console.log(`Can't join room ${roomId}, emitting full_room socket event`)
           socket.emit('full_room', roomId)
         }
-      })
+      });
+
+      socket.on('send_message', (data) => {
+        socket.to(data.roomId).emit('receive_message', {
+            sender: 'User', // You can replace this with the actual user identifier
+            message: data.message,
+        })});
+
+        socket.on('start_call', (roomId) => {
+            console.log(`Broadcasting start_call event to peers in room ${roomId}`)
+            socket.to(roomId).emit('start_call')
+          })
+        
+          socket.on('webrtc_offer', (event) => {
+            console.log(`Broadcasting webrtc_offer event to peers in room ${event.roomId}`)
+            socket.to(event.roomId).emit('webrtc_offer', event.sdp)
+          })
+        
+          socket.on('webrtc_answer', (event) => {
+            console.log(`Broadcasting webrtc_answer event to peers in room ${event.roomId}`)
+            socket.to(event.roomId).emit('webrtc_answer', event.sdp)
+          })
+        
+          socket.on('webrtc_ice_candidate', (event) => {
+            console.log(`Broadcasting webrtc_ice_candidate event to peers in room ${event.roomId}`)
+            socket.to(event.roomId).emit('webrtc_ice_candidate', event)
+          })
 });
 
 const PORT = process.env.PORT || 3000;
