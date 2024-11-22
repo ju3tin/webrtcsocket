@@ -33,6 +33,24 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('A user disconnected:', socket.id);
     });
+
+    socket.on('join', (roomId) => {
+        const selectedRoom = io.sockets.adapter.rooms.get(roomId)
+        const numberOfClients = selectedRoom ? selectedRoom.size : 0
+    
+        if (numberOfClients === 0) {
+          console.log(`Creating room ${roomId} and emitting room_created socket event`)
+          socket.join(roomId)
+          socket.emit('room_created', roomId)
+        } else if (numberOfClients === 1) {
+          console.log(`Joining room ${roomId} and emitting room_joined socket event`)
+          socket.join(roomId)
+          socket.emit('room_joined', roomId)
+        } else {
+          console.log(`Can't join room ${roomId}, emitting full_room socket event`)
+          socket.emit('full_room', roomId)
+        }
+      })
 });
 
 const PORT = process.env.PORT || 3000;
